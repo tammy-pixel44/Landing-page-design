@@ -8,127 +8,108 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 export default function MotionDirector() {
   useGSAP(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const mm = gsap.matchMedia();
-    const anatomyStage = document.querySelector<HTMLElement>(".anatomy-stage");
-    if (anatomyStage) anatomyStage.style.contentVisibility = "visible";
 
     gsap.set(".page-progress__bar", { transformOrigin: "left center" });
-    const progressTrigger = ScrollTrigger.create({
+    const progress = ScrollTrigger.create({
       start: 0,
       end: "max",
       onUpdate: (self) => gsap.set(".page-progress__bar", { scaleX: self.progress }),
     });
 
-    const fontsReady = document.fonts?.ready;
-    fontsReady?.then(() => ScrollTrigger.refresh()).catch(() => undefined);
+    document.fonts?.ready.then(() => ScrollTrigger.refresh()).catch(() => undefined);
 
-    if (reduceMotion) {
-      gsap.set("[data-reveal], .hero-kicker, .hero-word, .hero-sub, .hero-actions, .hero-proofline", {
-        clearProps: "all",
-        opacity: 1,
-        y: 0,
-      });
-      return () => progressTrigger.kill();
+    if (reduced) {
+      gsap.set("[data-reveal], .hero-kicker, .hero-word, .hero-sub, .hero-purchase, .orbit-readout", { clearProps: "all", opacity: 1, y: 0 });
+      return () => progress.kill();
     }
 
     const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
     intro
-      .from(".nav-shell", { yPercent: -100, duration: 0.75 })
-      .from(".hero-kicker", { opacity: 0, y: 16, duration: 0.5 }, "-=0.15")
-      .from(".hero-word", { opacity: 0, yPercent: 115, rotate: 1.2, duration: 0.82, stagger: 0.08 }, "-=0.25")
-      .from(".hero-sub", { opacity: 0, y: 20, duration: 0.58 }, "-=0.34")
-      .from(".hero-actions", { opacity: 0, y: 14, duration: 0.48 }, "-=0.3")
-      .from(".hero-proofline", { opacity: 0, y: 10, duration: 0.42, stagger: 0.07 }, "-=0.25");
+      .from(".nav-shell", { yPercent: -110, duration: .7 })
+      .from(".hero-kicker", { opacity: 0, y: 12, duration: .4 }, "-=.15")
+      .from(".hero-word", { yPercent: 112, opacity: 0, duration: .88, stagger: .08 }, "-=.18")
+      .from(".hero-sub", { opacity: 0, y: 16, duration: .5 }, "-=.34")
+      .from(".hero-purchase", { opacity: 0, y: 12, scale: .97, duration: .45 }, "-=.28")
+      .from(".orbit-stage", { opacity: 0, y: 40, duration: .95 }, "-=.38")
+      .from(".orbit-readout", { opacity: 0, y: 12, duration: .5 }, "-=.36");
 
     gsap.timeline({
-      scrollTrigger: {
-        trigger: ".hero-shell",
-        start: "top top",
-        end: "bottom top",
-        scrub: 0.7,
-      },
+      scrollTrigger: { trigger: ".hero-shell", start: "top top", end: "bottom top", scrub: .8 },
     })
-      .to(".hero-copy", { y: -42, opacity: 0.38, duration: 0.55, ease: "power1.inOut" }, 0.3)
-      .to(".hero-fan-rings", { scale: 1.045, opacity: 0.72, duration: 0.55, ease: "power1.inOut" }, 0.32)
-      .to(".hero-proofline", { opacity: 0, duration: 0.25 }, 0.38)
-      .to(".hero-fan-cta", { y: -8, duration: 0.32, ease: "power1.out" }, 0.42);
+      .to(".hero-copy", { y: -72, opacity: .18, duration: .5, ease: "power1.inOut" }, .18)
+      .to(".hero-world__contour--one", { scale: 1.12, opacity: .35, duration: .7, ease: "none" }, 0)
+      .to(".hero-world__contour--two", { scale: 1.2, opacity: .2, duration: .7, ease: "none" }, 0)
+      .to(".hero-world__contour--three", { scale: 1.3, opacity: .08, duration: .7, ease: "none" }, 0)
+      .to(".orbit-stage", { y: 56, scale: .95, duration: .55, ease: "power1.inOut" }, .24);
 
     gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element) => {
       gsap.from(element, {
         opacity: 0,
         y: 34,
-        duration: 0.85,
+        duration: .85,
         ease: "power3.out",
         scrollTrigger: { trigger: element, start: "top 86%", once: true },
       });
     });
 
     mm.add("(min-width: 900px)", () => {
-      const anatomy = gsap.timeline({
-        scrollTrigger: {
-          trigger: ".anatomy-stage",
-          start: "top top",
-          end: "+=1900",
-          scrub: 0.8,
-          pin: ".anatomy-pin",
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
+      gsap.from(".wallet-bridge__threads", {
+        y: -100,
+        opacity: 0,
+        scale: .9,
+        duration: 1.1,
+        ease: "power3.out",
+        scrollTrigger: { trigger: ".wallet-bridge", start: "top 78%", once: true },
       });
 
-      gsap.set(".anatomy-chip", { opacity: 0.16, x: 70, scale: 0.96 });
-      gsap.set(".anatomy-step", { opacity: 0.24 });
-      gsap.set(".anatomy-output", { scale: 0.9, opacity: 0.5 });
-
-      const chips = gsap.utils.toArray<HTMLElement>(".anatomy-chip");
-      const steps = gsap.utils.toArray<HTMLElement>(".anatomy-step");
-
-      chips.forEach((chip, index) => {
-        const at = index * 0.7;
-        anatomy
-          .to(chip, { opacity: 1, x: 0, scale: 1, duration: 0.5, ease: "power2.out" }, at)
-          .to(steps[index], { opacity: 1, duration: 0.3 }, at)
-          .to(steps[index], { opacity: 0.24, duration: 0.3 }, at + 0.48);
+      gsap.from(".wallet-ribbon__card", {
+        y: 120,
+        opacity: 0,
+        scale: .84,
+        duration: .85,
+        stagger: { each: .06, from: "center" },
+        ease: "power3.out",
+        scrollTrigger: { trigger: ".wallet-ribbon", start: "top 94%", once: true },
       });
 
-      anatomy
-        .to(".anatomy-rail__fill", { scaleY: 1, transformOrigin: "top center", duration: 4.2, ease: "none" }, 0)
-        .to(".anatomy-output", {
-          scale: 1,
-          opacity: 1,
-          boxShadow: "0 0 0 1px rgba(234,212,133,.32), 0 28px 90px rgba(23,59,100,.18)",
-          duration: 0.8,
-          ease: "power3.out",
-        }, chips.length * 0.7 - 0.15);
+      const problem = gsap.timeline({
+        scrollTrigger: { trigger: ".problem-stage", start: "top 72%", end: "bottom 72%", scrub: .75 },
+      });
+      problem
+        .from(".problem-equation__rate", { opacity: .2, scale: .9, duration: .5 })
+        .from(".problem-rule", { opacity: 0, x: 55, stagger: .18, duration: .7 }, .12)
+        .from(".problem-equation__answer", { opacity: 0, scale: .88, rotate: 2, duration: .7 }, .62);
     });
 
-    mm.add("(max-width: 899px)", () => {
-      gsap.utils.toArray<HTMLElement>(".anatomy-chip").forEach((chip, index) => {
-        gsap.from(chip, {
-          opacity: 0,
-          x: 24,
-          duration: 0.55,
-          delay: index * 0.02,
-          scrollTrigger: { trigger: chip, start: "top 90%", once: true },
-        });
-      });
-    });
-
-    gsap.from(".trust-source-stack article", {
-      x: -18,
+    gsap.from(".qr-phone", {
+      y: 70,
+      rotate: 10,
       opacity: 0,
-      stagger: 0.08,
-      duration: 0.6,
-      ease: "power2.out",
-      scrollTrigger: { trigger: ".trust-proof-panel", start: "top 82%", once: true },
+      duration: 1.05,
+      ease: "power3.out",
+      scrollTrigger: { trigger: ".qr-story", start: "top 72%", once: true },
     });
 
-    gsap.to(".cta-ring--a", { rotate: 360, duration: 34, ease: "none", repeat: -1 });
-    gsap.to(".cta-ring--b", { rotate: -360, duration: 46, ease: "none", repeat: -1 });
+    gsap.from(".evidence-receipt", {
+      y: 55,
+      rotate: -1.5,
+      opacity: 0,
+      duration: .95,
+      ease: "power3.out",
+      scrollTrigger: { trigger: ".evidence-receipt", start: "top 82%", once: true },
+    });
+
+    gsap.to(".cta-stack", {
+      rotate: 10,
+      scale: 1.06,
+      ease: "none",
+      scrollTrigger: { trigger: ".cta-stage", start: "top bottom", end: "bottom top", scrub: 1 },
+    });
 
     return () => {
-      progressTrigger.kill();
+      progress.kill();
       mm.revert();
     };
   });

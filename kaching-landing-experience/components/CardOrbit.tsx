@@ -2,16 +2,14 @@
 
 import { RoundedBox } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-
-gsap.registerPlugin(ScrollTrigger);
 
 type CardLook = {
   name: string;
   sub: string;
+  value: string;
+  reason: string;
   from: string;
   to: string;
   ink: string;
@@ -21,69 +19,69 @@ type CardLook = {
 };
 
 const cardLooks: CardLook[] = [
-  { name: "CASHBACK", sub: "EVERYDAY", from: "#142A44", to: "#173B64", ink: "#F6FAFF", edge: "#0C1F35", metalness: .16, roughness: .3 },
-  { name: "REWARDS", sub: "CORE", from: "#536C8B", to: "#8DA5C2", ink: "#F6FAFF", edge: "#425E80", metalness: .28, roughness: .28 },
-  { name: "PREMIUM", sub: "UPI", from: "#1E1E1E", to: "#313131", ink: "#EAD485", edge: "#0F0F0F", metalness: .42, roughness: .2 },
-  { name: "TRAVEL", sub: "SIGNATURE", from: "#173963", to: "#214D7E", ink: "#F4DE8D", edge: "#0C1F35", metalness: .25, roughness: .25 },
-  { name: "METAL", sub: "CARD", from: "#F4DE8D", to: "#D4B33B", ink: "#173B64", edge: "#88711F", metalness: .55, roughness: .18 },
-  { name: "ONLINE", sub: "PLUS", from: "#193456", to: "#0C1F35", ink: "#F6FAFF", edge: "#091725", metalness: .18, roughness: .26 },
-  { name: "TRAVEL", sub: "REWARDS", from: "#8DA5C2", to: "#55759D", ink: "#0C1F35", edge: "#425E80", metalness: .22, roughness: .3 },
-  { name: "EVERYDAY", sub: "EDGE", from: "#2C2C2C", to: "#1A1A1A", ink: "#EAD485", edge: "#0C0C0C", metalness: .38, roughness: .2 },
-  { name: "SMART", sub: "SPEND", from: "#173B64", to: "#8DA5C2", ink: "#F6FAFF", edge: "#173963", metalness: .25, roughness: .24 },
+  { name: "Everyday Plus", sub: "CASHBACK", value: "₹62", reason: "Dining multiplier wins", from: "#173B64", to: "#0B2139", ink: "#F6F4ED", edge: "#071727", metalness: .16, roughness: .28 },
+  { name: "Travel Metal", sub: "TRAVEL", value: "₹48", reason: "Better on flights", from: "#EAD485", to: "#B9922E", ink: "#172333", edge: "#80671E", metalness: .58, roughness: .18 },
+  { name: "UPI Edge", sub: "UPI", value: "₹43", reason: "UPI reward rule", from: "#8DA5C2", to: "#4D6E96", ink: "#F6F4ED", edge: "#3C5877", metalness: .24, roughness: .24 },
+  { name: "Dining Core", sub: "DINING", value: "₹39", reason: "Category bonus", from: "#272727", to: "#101010", ink: "#EAD485", edge: "#090909", metalness: .42, roughness: .2 },
+  { name: "Online Max", sub: "ONLINE", value: "₹31", reason: "Online spend boost", from: "#244B77", to: "#152B47", ink: "#F6F4ED", edge: "#102036", metalness: .22, roughness: .27 },
+  { name: "Fuel Smart", sub: "FUEL", value: "₹28", reason: "Fuel surcharge value", from: "#D9E4E7", to: "#8DA5C2", ink: "#173B64", edge: "#6A839F", metalness: .12, roughness: .34 },
+  { name: "Premium Reserve", sub: "PREMIUM", value: "₹24", reason: "Premium base earn", from: "#1D1D1F", to: "#3A3322", ink: "#F4DE8D", edge: "#0D0D0E", metalness: .5, roughness: .19 },
+  { name: "Cashback Flex", sub: "CASHBACK", value: "₹19", reason: "Simple flat reward", from: "#4C6788", to: "#1E3A5B", ink: "#F6F4ED", edge: "#17304C", metalness: .2, roughness: .29 },
 ];
 
 function makeCardTexture(look: CardLook) {
   const canvas = document.createElement("canvas");
-  canvas.width = 640;
-  canvas.height = 1024;
+  canvas.width = 1024;
+  canvas.height = 640;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
 
-  const gradient = ctx.createLinearGradient(0, 0, 640, 1024);
+  const gradient = ctx.createLinearGradient(0, 0, 1024, 640);
   gradient.addColorStop(0, look.from);
   gradient.addColorStop(1, look.to);
   ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 640, 1024);
+  ctx.fillRect(0, 0, 1024, 640);
 
+  ctx.save();
   ctx.globalAlpha = .09;
   ctx.strokeStyle = look.ink;
   ctx.lineWidth = 1;
-  for (let x = -500; x < 900; x += 28) {
+  for (let x = -420; x < 1300; x += 34) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
-    ctx.lineTo(x + 820, 1024);
+    ctx.lineTo(x + 500, 640);
     ctx.stroke();
   }
+  ctx.restore();
 
-  const glow = ctx.createRadialGradient(500, 120, 0, 500, 120, 380);
-  glow.addColorStop(0, "rgba(255,255,255,.18)");
-  glow.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, 640, 1024);
+  const bloom = ctx.createRadialGradient(810, 70, 0, 810, 70, 470);
+  bloom.addColorStop(0, "rgba(255,255,255,.18)");
+  bloom.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = bloom;
+  ctx.fillRect(0, 0, 1024, 640);
 
   ctx.fillStyle = look.ink;
-  ctx.globalAlpha = .9;
-  ctx.font = "700 34px Arial, sans-serif";
-  ctx.letterSpacing = "4px";
-  ctx.fillText("CARDEIFY", 54, 82);
+  ctx.globalAlpha = .92;
+  ctx.font = "700 38px Arial, sans-serif";
+  ctx.fillText("CARDEIFY", 58, 72);
 
-  ctx.globalAlpha = .62;
-  ctx.font = "500 18px Arial, sans-serif";
-  ctx.fillText("SMART WALLET", 55, 112);
+  ctx.globalAlpha = .56;
+  ctx.font = "600 17px Arial, sans-serif";
+  ctx.fillText("SMART WALLET PROFILE", 60, 101);
 
   ctx.globalAlpha = 1;
-  ctx.font = "700 47px Arial, sans-serif";
-  ctx.fillText(look.name, 54, 660);
-  ctx.globalAlpha = .66;
-  ctx.font = "600 21px Arial, sans-serif";
-  ctx.fillText(look.sub, 56, 695);
+  ctx.font = "700 50px Arial, sans-serif";
+  ctx.fillText(look.name.toUpperCase(), 58, 454);
+  ctx.globalAlpha = .64;
+  ctx.font = "700 19px Arial, sans-serif";
+  ctx.fillText(look.sub, 60, 489);
 
-  ctx.globalAlpha = .54;
-  ctx.font = "500 18px Arial, sans-serif";
-  ctx.fillText("•••• 2841", 55, 930);
-  ctx.font = "600 15px Arial, sans-serif";
-  ctx.fillText("CARD PROFILE", 430, 930);
+  ctx.globalAlpha = .55;
+  ctx.font = "500 19px Arial, sans-serif";
+  ctx.fillText("•••• 2841", 60, 575);
+  ctx.textAlign = "right";
+  ctx.fillText("ILLUSTRATIVE PROFILE", 962, 575);
+  ctx.textAlign = "left";
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -94,23 +92,15 @@ function makeCardTexture(look: CardLook) {
 
 function Chip() {
   return (
-    <group position={[-.47, .55, .09]}>
-      <RoundedBox args={[
-        .5, .39, .045,
-      ]} radius={.05} smoothness={5}>
-        <meshStandardMaterial color="#D8C17A" metalness={.82} roughness={.18} />
+    <group position={[-1.05, .28, .092]}>
+      <RoundedBox args={[.58, .43, .046]} radius={.055} smoothness={5}>
+        <meshStandardMaterial color="#D8C17A" metalness={.84} roughness={.17} />
       </RoundedBox>
-      {[-.14, 0, .14].map((x) => (
-        <mesh key={x} position={[x, 0, .025]}>
-          <boxGeometry args={[.014, .29, .008]} />
-          <meshStandardMaterial color="#8B7331" metalness={.7} roughness={.28} />
-        </mesh>
+      {[-.17, 0, .17].map((x) => (
+        <mesh key={x} position={[x, 0, .026]}><boxGeometry args={[.014, .32, .008]} /><meshStandardMaterial color="#886F2C" metalness={.72} roughness={.25} /></mesh>
       ))}
-      {[-.09, .09].map((y) => (
-        <mesh key={y} position={[0, y, .026]}>
-          <boxGeometry args={[.4, .014, .008]} />
-          <meshStandardMaterial color="#8B7331" metalness={.7} roughness={.28} />
-        </mesh>
+      {[-.1, .1].map((y) => (
+        <mesh key={y} position={[0, y, .027]}><boxGeometry args={[.46, .014, .008]} /><meshStandardMaterial color="#886F2C" metalness={.72} roughness={.25} /></mesh>
       ))}
     </group>
   );
@@ -118,12 +108,9 @@ function Chip() {
 
 function Contactless({ color }: { color: string }) {
   return (
-    <group position={[.48, .78, .095]} rotation={[0, 0, -.08]}>
-      {[.085, .145, .205].map((radius) => (
-        <mesh key={radius} rotation={[0, 0, Math.PI / 2]}>
-          <torusGeometry args={[radius, .01, 6, 22, Math.PI]} />
-          <meshStandardMaterial color={color} transparent opacity={.76} />
-        </mesh>
+    <group position={[1.12, .65, .097]} rotation={[0, 0, -.08]}>
+      {[.09, .15, .21].map((radius) => (
+        <mesh key={radius} rotation={[0, 0, Math.PI / 2]}><torusGeometry args={[radius, .011, 6, 24, Math.PI]} /><meshStandardMaterial color={color} transparent opacity={.76} /></mesh>
       ))}
     </group>
   );
@@ -140,78 +127,66 @@ function PhysicalCard({ look }: { look: CardLook }) {
 
   return (
     <group>
-      <RoundedBox args={[2.12, 3.36, .15]} radius={.13} smoothness={8}>
-        <meshStandardMaterial
-          color={look.from}
-          map={texture ?? undefined}
-          metalness={look.metalness}
-          roughness={look.roughness}
-        />
+      <RoundedBox args={[3.36, 2.12, .15]} radius={.14} smoothness={8}>
+        <meshStandardMaterial color={look.from} map={texture ?? undefined} metalness={look.metalness} roughness={look.roughness} />
       </RoundedBox>
-      <mesh position={[0, 0, -.082]}>
-        <boxGeometry args={[1.84, .32, .018]} />
-        <meshStandardMaterial color={look.edge} roughness={.5} />
-      </mesh>
+      <mesh position={[0, 0, -.082]}><boxGeometry args={[2.96, .27, .018]} /><meshStandardMaterial color={look.edge} roughness={.5} /></mesh>
       <Chip />
       <Contactless color={look.ink} />
     </group>
   );
 }
 
-function FanScene({ reducedMotion }: { reducedMotion: boolean }) {
+function CarouselScene({ reducedMotion, onActiveChange }: { reducedMotion: boolean; onActiveChange: (index: number) => void }) {
   const rig = useRef<THREE.Group>(null);
   const cardRefs = useRef<(THREE.Group | null)[]>([]);
-  const scroll = useRef(0);
-
-  useEffect(() => {
-    if (reducedMotion) return;
-    const trigger = ScrollTrigger.create({
-      trigger: ".hero-shell",
-      start: "top top",
-      end: "bottom top",
-      onUpdate: (self) => { scroll.current = self.progress; },
-    });
-    return () => trigger.kill();
-  }, [reducedMotion]);
+  const activeRef = useRef(0);
+  const phaseRef = useRef(0);
 
   useFrame((state, delta) => {
-    const p = reducedMotion ? 0 : scroll.current;
-    const spread = THREE.MathUtils.lerp(1, 1.1, p);
-    const lift = THREE.MathUtils.smoothstep(p, .35, .9);
+    phaseRef.current += reducedMotion ? 0 : delta * .19;
+    const phase = phaseRef.current;
 
     if (rig.current) {
-      const px = reducedMotion ? 0 : state.pointer.x * .08;
-      const py = reducedMotion ? 0 : state.pointer.y * .035;
-      rig.current.rotation.y = THREE.MathUtils.damp(rig.current.rotation.y, px, 3.5, delta);
-      rig.current.rotation.x = THREE.MathUtils.damp(rig.current.rotation.x, -.055 - py, 3.5, delta);
+      const px = reducedMotion ? 0 : state.pointer.x * .055;
+      const py = reducedMotion ? 0 : state.pointer.y * .025;
+      rig.current.rotation.y = THREE.MathUtils.damp(rig.current.rotation.y, px, 3.4, delta);
+      rig.current.rotation.x = THREE.MathUtils.damp(rig.current.rotation.x, -.045 - py, 3.4, delta);
     }
 
-    const middle = (cardLooks.length - 1) / 2;
+    let closest = 0;
+    let closestDepth = -Infinity;
+
     cardRefs.current.forEach((card, index) => {
       if (!card) return;
-      const normalized = (index - middle) / middle;
-      const angle = normalized * 1.04;
-      const x = Math.sin(angle) * 4.25 * spread;
-      const y = -1.05 + Math.cos(angle) * 1.08 + (index === middle ? lift * .45 : 0);
-      const z = Math.cos(angle) * .72 + (index === middle ? .45 + lift * .6 : 0) - Math.abs(normalized) * .18;
-      const idle = reducedMotion ? 0 : Math.sin(state.clock.elapsedTime * .55 + index * .45) * .012;
+      const angle = (index / cardLooks.length) * Math.PI * 2 + phase;
+      const depth = Math.cos(angle);
+      const x = Math.sin(angle) * 5.05;
+      const y = -.35 + Math.cos(angle) * .36;
+      const z = depth * 2.18;
+      const side = Math.sin(angle);
 
-      card.position.set(x, y + idle, z);
-      card.rotation.set(-.02, normalized * -.05, -angle * .9);
-      const targetScale = index === middle ? 1.08 + lift * .08 : .92 - Math.abs(normalized) * .09;
-      card.scale.setScalar(targetScale);
+      card.position.set(x, y, z);
+      card.rotation.set(-.035 + Math.abs(side) * .025, -side * .2, -side * .18);
+      const scale = THREE.MathUtils.mapLinear(depth, -1, 1, .63, 1.05);
+      card.scale.setScalar(scale);
+
+      if (depth > closestDepth) {
+        closestDepth = depth;
+        closest = index;
+      }
     });
+
+    if (closest !== activeRef.current) {
+      activeRef.current = closest;
+      onActiveChange(closest);
+    }
   });
 
   return (
-    <group ref={rig} position={[0, -.25, 0]}>
+    <group ref={rig} position={[0, -.1, 0]}>
       {cardLooks.map((look, index) => (
-        <group
-          key={look.name + index}
-          ref={(element) => { cardRefs.current[index] = element; }}
-        >
-          <PhysicalCard look={look} />
-        </group>
+        <group key={look.name} ref={(element) => { cardRefs.current[index] = element; }}><PhysicalCard look={look} /></group>
       ))}
     </group>
   );
@@ -219,6 +194,8 @@ function FanScene({ reducedMotion }: { reducedMotion: boolean }) {
 
 export default function CardOrbit() {
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const active = cardLooks[activeIndex] ?? cardLooks[0];
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -229,20 +206,23 @@ export default function CardOrbit() {
   }, []);
 
   return (
-    <div className="orbit-canvas" aria-hidden="true">
-      <Canvas
-        camera={{ position: [0, .18, 10.6], fov: 34 }}
-        dpr={[1, 1.5]}
-        frameloop={reducedMotion ? "demand" : "always"}
-        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-      >
-        <fog attach="fog" args={["#1A1A1A", 10, 18]} />
-        <ambientLight intensity={1.05} />
-        <directionalLight position={[2.8, 6, 6]} intensity={4.6} color="#fff7d7" />
-        <pointLight position={[-5, -.5, 3]} intensity={3.2} color="#D4B33B" />
-        <pointLight position={[5, 1.2, 1]} intensity={3.1} color="#55759D" />
-        <FanScene reducedMotion={reducedMotion} />
-      </Canvas>
+    <div className="orbit-stage">
+      <div className="orbit-canvas" aria-hidden="true">
+        <Canvas camera={{ position: [0, .1, 10.4], fov: 34 }} dpr={[1, 1.45]} frameloop={reducedMotion ? "demand" : "always"} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
+          <fog attach="fog" args={["#171717", 11, 18]} />
+          <ambientLight intensity={1.05} />
+          <directionalLight position={[2.4, 5.2, 6.5]} intensity={4.2} color="#FFF5D1" />
+          <pointLight position={[-5.2, -.7, 4.2]} intensity={2.9} color="#D4B33B" />
+          <pointLight position={[5.4, 1.1, 2.6]} intensity={3.2} color="#7290B5" />
+          <CarouselScene reducedMotion={reducedMotion} onActiveChange={setActiveIndex} />
+        </Canvas>
+      </div>
+
+      <div className="orbit-readout" aria-live="polite">
+        <span>BEST ILLUSTRATIVE CARD</span>
+        <div><strong>{active.name}</strong><b>{active.value}</b></div>
+        <p>{active.reason}</p>
+      </div>
     </div>
   );
 }

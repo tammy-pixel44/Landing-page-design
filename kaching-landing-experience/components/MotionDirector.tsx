@@ -10,6 +10,8 @@ export default function MotionDirector() {
   useGSAP(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const mm = gsap.matchMedia();
+    const anatomyStage = document.querySelector<HTMLElement>(".anatomy-stage");
+    if (anatomyStage) anatomyStage.style.contentVisibility = "visible";
 
     gsap.set(".page-progress__bar", { transformOrigin: "left center" });
     const progressTrigger = ScrollTrigger.create({
@@ -18,8 +20,11 @@ export default function MotionDirector() {
       onUpdate: (self) => gsap.set(".page-progress__bar", { scaleX: self.progress }),
     });
 
+    const fontsReady = document.fonts?.ready;
+    fontsReady?.then(() => ScrollTrigger.refresh()).catch(() => undefined);
+
     if (reduceMotion) {
-      gsap.set("[data-reveal], .hero-kicker, .hero-word, .hero-sub, .hero-actions, .hero-proofline, .hero-scroll-result", {
+      gsap.set("[data-reveal], .hero-kicker, .hero-word, .hero-sub, .hero-actions, .hero-proofline", {
         clearProps: "all",
         opacity: 1,
         y: 0,
@@ -31,11 +36,7 @@ export default function MotionDirector() {
     intro
       .from(".nav-shell", { yPercent: -100, duration: 0.75 })
       .from(".hero-kicker", { opacity: 0, y: 16, duration: 0.5 }, "-=0.15")
-      .from(
-        ".hero-word",
-        { opacity: 0, yPercent: 115, rotate: 1.5, duration: 0.82, stagger: 0.08 },
-        "-=0.25",
-      )
+      .from(".hero-word", { opacity: 0, yPercent: 115, rotate: 1.2, duration: 0.82, stagger: 0.08 }, "-=0.25")
       .from(".hero-sub", { opacity: 0, y: 20, duration: 0.58 }, "-=0.34")
       .from(".hero-actions", { opacity: 0, y: 14, duration: 0.48 }, "-=0.3")
       .from(".hero-proofline", { opacity: 0, y: 10, duration: 0.42, stagger: 0.07 }, "-=0.25");
@@ -48,10 +49,10 @@ export default function MotionDirector() {
         scrub: 0.7,
       },
     })
-      .to(".hero-side-note", { opacity: 0, y: -18, duration: 0.3 }, 0.12)
-      .to(".hero-copy", { y: -58, opacity: 0.28, duration: 0.55, ease: "power1.inOut" }, 0.34)
+      .to(".hero-copy", { y: -42, opacity: 0.38, duration: 0.55, ease: "power1.inOut" }, 0.3)
+      .to(".hero-fan-rings", { scale: 1.045, opacity: 0.72, duration: 0.55, ease: "power1.inOut" }, 0.32)
       .to(".hero-proofline", { opacity: 0, duration: 0.25 }, 0.38)
-      .to(".hero-scroll-result", { opacity: 1, y: 0, duration: 0.42, ease: "power2.out" }, 0.5);
+      .to(".hero-fan-cta", { y: -8, duration: 0.32, ease: "power1.out" }, 0.42);
 
     gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element) => {
       gsap.from(element, {
@@ -59,11 +60,7 @@ export default function MotionDirector() {
         y: 34,
         duration: 0.85,
         ease: "power3.out",
-        scrollTrigger: {
-          trigger: element,
-          start: "top 86%",
-          once: true,
-        },
+        scrollTrigger: { trigger: element, start: "top 86%", once: true },
       });
     });
 
@@ -76,6 +73,7 @@ export default function MotionDirector() {
           scrub: 0.8,
           pin: ".anatomy-pin",
           anticipatePin: 1,
+          invalidateOnRefresh: true,
         },
       });
 
@@ -96,17 +94,13 @@ export default function MotionDirector() {
 
       anatomy
         .to(".anatomy-rail__fill", { scaleY: 1, transformOrigin: "top center", duration: 4.2, ease: "none" }, 0)
-        .to(
-          ".anatomy-output",
-          {
-            scale: 1,
-            opacity: 1,
-            boxShadow: "0 0 0 1px rgba(205,255,95,.35), 0 28px 90px rgba(0,0,0,.22)",
-            duration: 0.8,
-            ease: "power3.out",
-          },
-          chips.length * 0.7 - 0.15,
-        );
+        .to(".anatomy-output", {
+          scale: 1,
+          opacity: 1,
+          boxShadow: "0 0 0 1px rgba(234,212,133,.32), 0 28px 90px rgba(23,59,100,.18)",
+          duration: 0.8,
+          ease: "power3.out",
+        }, chips.length * 0.7 - 0.15);
     });
 
     mm.add("(max-width: 899px)", () => {
@@ -119,6 +113,15 @@ export default function MotionDirector() {
           scrollTrigger: { trigger: chip, start: "top 90%", once: true },
         });
       });
+    });
+
+    gsap.from(".trust-source-stack article", {
+      x: -18,
+      opacity: 0,
+      stagger: 0.08,
+      duration: 0.6,
+      ease: "power2.out",
+      scrollTrigger: { trigger: ".trust-proof-panel", start: "top 82%", once: true },
     });
 
     gsap.to(".cta-ring--a", { rotate: 360, duration: 34, ease: "none", repeat: -1 });

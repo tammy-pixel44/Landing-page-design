@@ -1,6 +1,6 @@
 {
-  "name": "kaching-landing-experience",
-  "version": "0.2.0",
+  "name": "cardeify-landing-experience",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

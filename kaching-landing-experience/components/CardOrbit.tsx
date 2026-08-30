@@ -9,31 +9,107 @@ import * as THREE from "three";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const cardLooks = [
-  { body: "#d5ff69", ink: "#082019", edge: "#a9d94f", metalness: 0.08, roughness: 0.36 },
-  { body: "#eee9df", ink: "#142e25", edge: "#c8c1b6", metalness: 0.04, roughness: 0.52 },
-  { body: "#172e27", ink: "#d7ff72", edge: "#315448", metalness: 0.2, roughness: 0.28 },
-  { body: "#839990", ink: "#071d17", edge: "#627a70", metalness: 0.42, roughness: 0.24 },
-  { body: "#c7a85f", ink: "#10251e", edge: "#987d3e", metalness: 0.48, roughness: 0.23 },
-  { body: "#263a33", ink: "#f2eee4", edge: "#3c5149", metalness: 0.14, roughness: 0.4 },
+type CardLook = {
+  name: string;
+  sub: string;
+  from: string;
+  to: string;
+  ink: string;
+  edge: string;
+  metalness: number;
+  roughness: number;
+};
+
+const cardLooks: CardLook[] = [
+  { name: "CASHBACK", sub: "EVERYDAY", from: "#142A44", to: "#173B64", ink: "#F6FAFF", edge: "#0C1F35", metalness: .16, roughness: .3 },
+  { name: "REWARDS", sub: "CORE", from: "#536C8B", to: "#8DA5C2", ink: "#F6FAFF", edge: "#425E80", metalness: .28, roughness: .28 },
+  { name: "PREMIUM", sub: "UPI", from: "#1E1E1E", to: "#313131", ink: "#EAD485", edge: "#0F0F0F", metalness: .42, roughness: .2 },
+  { name: "TRAVEL", sub: "SIGNATURE", from: "#173963", to: "#214D7E", ink: "#F4DE8D", edge: "#0C1F35", metalness: .25, roughness: .25 },
+  { name: "METAL", sub: "CARD", from: "#F4DE8D", to: "#D4B33B", ink: "#173B64", edge: "#88711F", metalness: .55, roughness: .18 },
+  { name: "ONLINE", sub: "PLUS", from: "#193456", to: "#0C1F35", ink: "#F6FAFF", edge: "#091725", metalness: .18, roughness: .26 },
+  { name: "TRAVEL", sub: "REWARDS", from: "#8DA5C2", to: "#55759D", ink: "#0C1F35", edge: "#425E80", metalness: .22, roughness: .3 },
+  { name: "EVERYDAY", sub: "EDGE", from: "#2C2C2C", to: "#1A1A1A", ink: "#EAD485", edge: "#0C0C0C", metalness: .38, roughness: .2 },
+  { name: "SMART", sub: "SPEND", from: "#173B64", to: "#8DA5C2", ink: "#F6FAFF", edge: "#173963", metalness: .25, roughness: .24 },
 ];
+
+function makeCardTexture(look: CardLook) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 640;
+  canvas.height = 1024;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  const gradient = ctx.createLinearGradient(0, 0, 640, 1024);
+  gradient.addColorStop(0, look.from);
+  gradient.addColorStop(1, look.to);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 640, 1024);
+
+  ctx.globalAlpha = .09;
+  ctx.strokeStyle = look.ink;
+  ctx.lineWidth = 1;
+  for (let x = -500; x < 900; x += 28) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + 820, 1024);
+    ctx.stroke();
+  }
+
+  const glow = ctx.createRadialGradient(500, 120, 0, 500, 120, 380);
+  glow.addColorStop(0, "rgba(255,255,255,.18)");
+  glow.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, 640, 1024);
+
+  ctx.fillStyle = look.ink;
+  ctx.globalAlpha = .9;
+  ctx.font = "700 34px Arial, sans-serif";
+  ctx.letterSpacing = "4px";
+  ctx.fillText("CARDEIFY", 54, 82);
+
+  ctx.globalAlpha = .62;
+  ctx.font = "500 18px Arial, sans-serif";
+  ctx.fillText("SMART WALLET", 55, 112);
+
+  ctx.globalAlpha = 1;
+  ctx.font = "700 47px Arial, sans-serif";
+  ctx.fillText(look.name, 54, 660);
+  ctx.globalAlpha = .66;
+  ctx.font = "600 21px Arial, sans-serif";
+  ctx.fillText(look.sub, 56, 695);
+
+  ctx.globalAlpha = .54;
+  ctx.font = "500 18px Arial, sans-serif";
+  ctx.fillText("•••• 2841", 55, 930);
+  ctx.font = "600 15px Arial, sans-serif";
+  ctx.fillText("CARD PROFILE", 430, 930);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  texture.needsUpdate = true;
+  return texture;
+}
 
 function Chip() {
   return (
-    <group position={[-0.94, 0.2, 0.09]}>
-      <RoundedBox args={[0.62, 0.46, 0.045]} radius={0.055} smoothness={5}>
-        <meshStandardMaterial color="#c9aa63" metalness={0.78} roughness={0.22} />
+    <group position={[-.47, .55, .09]}>
+      <RoundedBox args={[
+        .5, .39, .045,
+      ]} radius={.05} smoothness={5}>
+        <meshStandardMaterial color="#D8C17A" metalness={.82} roughness={.18} />
       </RoundedBox>
-      {[-0.18, 0, 0.18].map((x) => (
-        <mesh key={`v-${x}`} position={[x, 0, 0.026]}>
-          <boxGeometry args={[0.018, 0.35, 0.008]} />
-          <meshStandardMaterial color="#8e7137" metalness={0.7} roughness={0.28} />
+      {[-.14, 0, .14].map((x) => (
+        <mesh key={x} position={[x, 0, .025]}>
+          <boxGeometry args={[.014, .29, .008]} />
+          <meshStandardMaterial color="#8B7331" metalness={.7} roughness={.28} />
         </mesh>
       ))}
-      {[-0.11, 0.11].map((y) => (
-        <mesh key={`h-${y}`} position={[0, y, 0.027]}>
-          <boxGeometry args={[0.5, 0.016, 0.008]} />
-          <meshStandardMaterial color="#8e7137" metalness={0.7} roughness={0.28} />
+      {[-.09, .09].map((y) => (
+        <mesh key={y} position={[0, y, .026]}>
+          <boxGeometry args={[.4, .014, .008]} />
+          <meshStandardMaterial color="#8B7331" metalness={.7} roughness={.28} />
         </mesh>
       ))}
     </group>
@@ -42,69 +118,50 @@ function Chip() {
 
 function Contactless({ color }: { color: string }) {
   return (
-    <group position={[1.03, 0.58, 0.09]} rotation={[0, 0, -0.12]}>
-      {[0.12, 0.2, 0.28].map((radius) => (
+    <group position={[.48, .78, .095]} rotation={[0, 0, -.08]}>
+      {[.085, .145, .205].map((radius) => (
         <mesh key={radius} rotation={[0, 0, Math.PI / 2]}>
-          <torusGeometry args={[radius, 0.013, 6, 26, Math.PI]} />
-          <meshStandardMaterial color={color} transparent opacity={0.8} />
+          <torusGeometry args={[radius, .01, 6, 22, Math.PI]} />
+          <meshStandardMaterial color={color} transparent opacity={.76} />
         </mesh>
       ))}
     </group>
   );
 }
 
-function PhysicalCard({ index }: { index: number }) {
-  const look = cardLooks[index % cardLooks.length];
+function PhysicalCard({ look }: { look: CardLook }) {
+  const [texture, setTexture] = useState<THREE.CanvasTexture | null>(null);
+
+  useEffect(() => {
+    const next = makeCardTexture(look);
+    setTexture(next);
+    return () => next?.dispose();
+  }, [look]);
 
   return (
     <group>
-      <RoundedBox args={[3.36, 2.12, 0.14]} radius={0.13} smoothness={8}>
-        <meshStandardMaterial color={look.body} metalness={look.metalness} roughness={look.roughness} />
+      <RoundedBox args={[2.12, 3.36, .15]} radius={.13} smoothness={8}>
+        <meshStandardMaterial
+          color={look.from}
+          map={texture ?? undefined}
+          metalness={look.metalness}
+          roughness={look.roughness}
+        />
       </RoundedBox>
-
-      <mesh position={[0, 0, -0.079]}>
-        <boxGeometry args={[2.92, 0.31, 0.018]} />
-        <meshStandardMaterial color={look.edge} roughness={0.55} />
+      <mesh position={[0, 0, -.082]}>
+        <boxGeometry args={[1.84, .32, .018]} />
+        <meshStandardMaterial color={look.edge} roughness={.5} />
       </mesh>
-
       <Chip />
       <Contactless color={look.ink} />
-
-      <mesh position={[0.74, 0.72, 0.091]}>
-        <boxGeometry args={[0.94, 0.052, 0.022]} />
-        <meshStandardMaterial color={look.ink} />
-      </mesh>
-      <mesh position={[0.98, 0.54, 0.091]}>
-        <boxGeometry args={[0.46, 0.052, 0.022]} />
-        <meshStandardMaterial color={look.ink} transparent opacity={0.68} />
-      </mesh>
-
-      <mesh position={[-0.7, -0.58, 0.091]}>
-        <boxGeometry args={[1.34, 0.036, 0.022]} />
-        <meshStandardMaterial color={look.ink} transparent opacity={0.72} />
-      </mesh>
-      <mesh position={[-1.05, -0.75, 0.091]}>
-        <boxGeometry args={[0.64, 0.036, 0.022]} />
-        <meshStandardMaterial color={look.ink} transparent opacity={0.42} />
-      </mesh>
-
-      <mesh position={[1.18, -0.68, 0.091]}>
-        <circleGeometry args={[0.18, 34]} />
-        <meshStandardMaterial color={look.ink} transparent opacity={0.65} />
-      </mesh>
-      <mesh position={[1.37, -0.68, 0.092]}>
-        <circleGeometry args={[0.18, 34]} />
-        <meshStandardMaterial color={look.ink} transparent opacity={0.36} />
-      </mesh>
     </group>
   );
 }
 
-function OrbitScene({ reducedMotion }: { reducedMotion: boolean }) {
+function FanScene({ reducedMotion }: { reducedMotion: boolean }) {
   const rig = useRef<THREE.Group>(null);
   const cardRefs = useRef<(THREE.Group | null)[]>([]);
-  const scrollProgress = useRef(0);
-  const total = cardLooks.length;
+  const scroll = useRef(0);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -112,72 +169,48 @@ function OrbitScene({ reducedMotion }: { reducedMotion: boolean }) {
       trigger: ".hero-shell",
       start: "top top",
       end: "bottom top",
-      onUpdate: (self) => {
-        scrollProgress.current = self.progress;
-      },
+      onUpdate: (self) => { scroll.current = self.progress; },
     });
     return () => trigger.kill();
   }, [reducedMotion]);
 
   useFrame((state, delta) => {
-    const p = reducedMotion ? 0.66 : scrollProgress.current;
-    const selection = THREE.MathUtils.smoothstep(p, 0.38, 0.92);
-    const orbitSpeed = THREE.MathUtils.lerp(0.12, 0.025, selection);
-    const t = state.clock.elapsedTime * (reducedMotion ? 0 : orbitSpeed);
+    const p = reducedMotion ? 0 : scroll.current;
+    const spread = THREE.MathUtils.lerp(1, 1.1, p);
+    const lift = THREE.MathUtils.smoothstep(p, .35, .9);
 
     if (rig.current) {
-      const px = reducedMotion ? 0 : state.pointer.x * 0.11 * (1 - selection * 0.55);
-      const py = reducedMotion ? 0 : state.pointer.y * 0.065 * (1 - selection * 0.55);
-      rig.current.rotation.y = THREE.MathUtils.damp(rig.current.rotation.y, px, 3.2, delta);
-      rig.current.rotation.x = THREE.MathUtils.damp(rig.current.rotation.x, -py + 0.04, 3.2, delta);
+      const px = reducedMotion ? 0 : state.pointer.x * .08;
+      const py = reducedMotion ? 0 : state.pointer.y * .035;
+      rig.current.rotation.y = THREE.MathUtils.damp(rig.current.rotation.y, px, 3.5, delta);
+      rig.current.rotation.x = THREE.MathUtils.damp(rig.current.rotation.x, -.055 - py, 3.5, delta);
     }
 
+    const middle = (cardLooks.length - 1) / 2;
     cardRefs.current.forEach((card, index) => {
       if (!card) return;
+      const normalized = (index - middle) / middle;
+      const angle = normalized * 1.04;
+      const x = Math.sin(angle) * 4.25 * spread;
+      const y = -1.05 + Math.cos(angle) * 1.08 + (index === middle ? lift * .45 : 0);
+      const z = Math.cos(angle) * .72 + (index === middle ? .45 + lift * .6 : 0) - Math.abs(normalized) * .18;
+      const idle = reducedMotion ? 0 : Math.sin(state.clock.elapsedTime * .55 + index * .45) * .012;
 
-      const angle = (index / total) * Math.PI * 2 + t;
-      const depth = Math.sin(angle);
-      const orbitPosition = new THREE.Vector3(
-        Math.cos(angle) * 4.15,
-        Math.sin(angle * 1.75) * 0.52,
-        depth * 2.25,
-      );
-
-      if (index === 0) {
-        const target = new THREE.Vector3(0.25, -0.12, 2.65);
-        card.position.lerpVectors(orbitPosition, target, selection);
-        card.rotation.set(
-          THREE.MathUtils.lerp(-0.08 + depth * 0.06, -0.03, selection),
-          THREE.MathUtils.lerp(-angle + Math.PI / 2, -0.13, selection),
-          THREE.MathUtils.lerp(Math.sin(angle) * 0.035, -0.025, selection),
-        );
-        const scale = THREE.MathUtils.lerp(0.82 + (depth + 1) * 0.08, 1.16, selection);
-        card.scale.setScalar(scale);
-      } else {
-        const side = index % 2 === 0 ? 1 : -1;
-        const retreat = new THREE.Vector3(side * (5.6 + index * 0.18), (index - 3) * 0.22, -2.3 - index * 0.24);
-        card.position.lerpVectors(orbitPosition, retreat, selection);
-        card.rotation.set(
-          -0.08 + depth * 0.06,
-          -angle + Math.PI / 2 + side * selection * 0.2,
-          Math.sin(angle) * 0.035,
-        );
-        const scale = THREE.MathUtils.lerp(0.78 + (depth + 1) * 0.075, 0.62, selection);
-        card.scale.setScalar(scale);
-      }
+      card.position.set(x, y + idle, z);
+      card.rotation.set(-.02, normalized * -.05, -angle * .9);
+      const targetScale = index === middle ? 1.08 + lift * .08 : .92 - Math.abs(normalized) * .09;
+      card.scale.setScalar(targetScale);
     });
   });
 
   return (
-    <group ref={rig} rotation={[0.06, 0, 0]}>
-      {cardLooks.map((_, index) => (
+    <group ref={rig} position={[0, -.25, 0]}>
+      {cardLooks.map((look, index) => (
         <group
-          key={index}
-          ref={(element) => {
-            cardRefs.current[index] = element;
-          }}
+          key={look.name + index}
+          ref={(element) => { cardRefs.current[index] = element; }}
         >
-          <PhysicalCard index={index} />
+          <PhysicalCard look={look} />
         </group>
       ))}
     </group>
@@ -198,17 +231,17 @@ export default function CardOrbit() {
   return (
     <div className="orbit-canvas" aria-hidden="true">
       <Canvas
-        camera={{ position: [0, 0.05, 8.45], fov: 36 }}
-        dpr={[1, 1.45]}
+        camera={{ position: [0, .18, 10.6], fov: 34 }}
+        dpr={[1, 1.5]}
         frameloop={reducedMotion ? "demand" : "always"}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
-        <fog attach="fog" args={["#071a15", 8, 16]} />
-        <ambientLight intensity={0.9} />
-        <directionalLight position={[3.8, 5.5, 5]} intensity={4.4} color="#fff4d8" />
-        <pointLight position={[-4.5, -1.5, 3.4]} intensity={3.1} color="#a7ffbd" />
-        <pointLight position={[4.6, 1.8, -2.5]} intensity={2.15} color="#d6b568" />
-        <OrbitScene reducedMotion={reducedMotion} />
+        <fog attach="fog" args={["#1A1A1A", 10, 18]} />
+        <ambientLight intensity={1.05} />
+        <directionalLight position={[2.8, 6, 6]} intensity={4.6} color="#fff7d7" />
+        <pointLight position={[-5, -.5, 3]} intensity={3.2} color="#D4B33B" />
+        <pointLight position={[5, 1.2, 1]} intensity={3.1} color="#55759D" />
+        <FanScene reducedMotion={reducedMotion} />
       </Canvas>
     </div>
   );

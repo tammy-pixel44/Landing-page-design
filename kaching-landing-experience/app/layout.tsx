@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import "./cardeify-theme.css";
+import "./editorial-v4.css";
 
 const geist = Geist({
   variable: "--font-geist",
@@ -15,8 +16,15 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
+const display = Playfair_Display({
+  variable: "--font-display",
+  subsets: ["latin"],
+  display: "swap",
+  style: ["normal", "italic"],
+});
+
 export const viewport: Viewport = {
-  themeColor: "#1A1A1A",
+  themeColor: "#171717",
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
@@ -24,8 +32,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   applicationName: "Cardeify",
-  title: "Cardeify — Know which card to use before you pay",
-  description: "Cardeify turns a multi-card wallet into one exact-rupee decision before payment, with a transparent rule and data path behind the recommendation.",
+  title: "Cardeify — One wallet. One decision.",
+  description: "Cardeify helps a multi-card wallet resolve reward rules into one clear card recommendation in rupees before payment.",
   keywords: ["Cardeify", "credit card rewards", "cashback", "credit card optimizer", "India credit cards", "card recommendation"],
   authors: [{ name: "Cardeify" }],
   creator: "Cardeify",
@@ -38,22 +46,22 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    title: "Cardeify — Know which card to use before you pay",
-    description: "One wallet-aware recommendation in rupees, before payment.",
+    title: "Cardeify — One wallet. One decision.",
+    description: "A wallet-aware card recommendation in rupees, before payment.",
     siteName: "Cardeify",
     locale: "en_IN",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Cardeify — Know which card to use before you pay",
-    description: "One wallet-aware recommendation in rupees, before payment.",
+    title: "Cardeify — One wallet. One decision.",
+    description: "A wallet-aware card recommendation in rupees, before payment.",
   },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en-IN">
-      <body className={`${geist.variable} ${geistMono.variable}`}>{children}</body>
+      <body className={`${geist.variable} ${geistMono.variable} ${display.variable}`}>{children}</body>
     </html>
   );
 }

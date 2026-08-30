@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./cardeify-theme.css";
 
 const geist = Geist({
   variable: "--font-geist",
@@ -15,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KaChing — Your cards disagree. KaChing decides.",
-  description: "A premium interaction concept for KaChing's exact-rupee credit-card decision experience.",
+  title: "Cardeify — Know which card to use before you pay",
+  description: "Cardeify turns a multi-card wallet into one exact-rupee decision before payment.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

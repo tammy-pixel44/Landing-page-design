@@ -2,6 +2,8 @@ import CardOrbit from "@/components/CardOrbit";
 import DecisionLab from "@/components/DecisionLab";
 import MotionDirector from "@/components/MotionDirector";
 import PosDemo from "@/components/PosDemo";
+import SiteLoader from "@/components/SiteLoader";
+import StoryCard from "@/components/StoryCard";
 
 const walletProfiles = ["Cashback", "Travel", "UPI", "Dining", "Fuel", "Online", "Premium", "Everyday"];
 
@@ -24,6 +26,8 @@ const faqs = [
 export default function Home() {
   return (
     <main id="main-content">
+      <SiteLoader />
+      <StoryCard />
       <a className="skip-link" href="#wallet">Skip to content</a>
       <MotionDirector />
       <div className="page-progress" aria-hidden="true"><i className="page-progress__bar" /></div>
@@ -31,13 +35,11 @@ export default function Home() {
       <nav className="nav-shell" aria-label="Primary navigation">
         <a className="brand" href="#top" aria-label="Cardeify home"><span>C</span>ardeify</a>
         <div className="nav-center">
-          <a href="#wallet">Why Cardeify</a>
-          <a href="#lab">Try it</a>
-          <a href="#checkout">How it works</a>
+          <a href="#wallet">How it works</a>
+          <a href="#lab">Features</a>
           <a href="#trust">Trust</a>
-          <a href="#faq">FAQ</a>
         </div>
-        <a className="nav-cta" href="#lab">Try the demo <span>↗</span></a>
+        <a className="nav-cta" href="#cta">Join the waitlist <span>↗</span></a>
       </nav>
 
       <section className="hero-shell" id="top" aria-labelledby="hero-title">
@@ -48,35 +50,32 @@ export default function Home() {
             <i className="hero-world__contour hero-world__contour--one" />
             <i className="hero-world__contour hero-world__contour--two" />
             <i className="hero-world__contour hero-world__contour--three" />
-            <i className="hero-world__star hero-world__star--one" />
-            <i className="hero-world__star hero-world__star--two" />
           </div>
 
           <div className="hero-copy">
-            <div className="hero-kicker"><span /> The wallet decision layer</div>
+            <div className="hero-kicker">In development for India</div>
             <h1 id="hero-title">
-              <span className="hero-line"><span className="hero-word">Every card promises rewards.</span></span>
-              <span className="hero-line"><span className="hero-word hero-word--accent">Cardeify finds the one that wins.</span></span>
+              <span className="hero-line"><span className="hero-word">Your cards.</span></span>
+              <span className="hero-line"><span className="hero-word">Their best move.</span></span>
             </h1>
-            <p className="hero-sub">One purchase. One wallet. One clear answer in rupees — before the moment to choose is gone.</p>
-            <div className="hero-purchase" aria-label="Illustrative purchase context">
-              <span className="hero-purchase__merchant"><i>FD</i><b>Food delivery</b></span>
-              <span>₹1,240</span>
-              <small>illustrative purchase</small>
+            <p className="hero-sub">Find which card to use, which offers combine, and what you could get back.</p>
+            <div className="hero-actions">
+              <a className="hero-primary" href="#cta">Join the waitlist</a>
+              <a className="hero-secondary" href="#wallet">See how it works <span>↓</span></a>
             </div>
           </div>
 
           <CardOrbit />
 
-          <div className="hero-bottomline">
-            <span>Scroll to open the wallet</span>
-            <i />
-            <a href="#lab">Skip to interactive demo ↘</a>
+          <div className="hero-example">
+            <i aria-hidden="true" />
+            <span>Illustrative example · Online purchase ₹5,000</span>
+            <i aria-hidden="true" />
           </div>
         </div>
       </section>
 
-      <section className="wallet-bridge" id="wallet" aria-labelledby="wallet-title">
+      <section className="wallet-bridge" id="wallet" aria-labelledby="wallet-title" data-story-stop data-card-x="0.76" data-card-y="0.66" data-card-rotation="-0.20" data-card-scale="0.62">
         <div className="wallet-bridge__threads" aria-hidden="true">
           {walletProfiles.map((profile, index) => <i key={profile} style={{ "--thread": index } as React.CSSProperties} />)}
           <b>C</b>
@@ -98,7 +97,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="problem-stage" id="logic" aria-labelledby="problem-title">
+      <section className="problem-stage" id="logic" aria-labelledby="problem-title" data-story-stop data-card-x="0.24" data-card-y="0.58" data-card-rotation="0.16" data-card-scale="0.58">
         <div className="problem-stage__intro" data-reveal>
           <span className="eyebrow eyebrow--ink">The problem with headline rewards</span>
           <h2 id="problem-title"><span>5%</span> is rarely the answer.</h2>
@@ -118,7 +117,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="lab-stage" id="lab" aria-labelledby="lab-title">
+      <section className="lab-stage" id="lab" aria-labelledby="lab-title" data-story-stop data-card-x="0.75" data-card-y="0.54" data-card-rotation="-0.12" data-card-scale="0.57">
         <div className="section-mast section-mast--dark" data-reveal>
           <span className="eyebrow">Try the idea</span>
           <h2 id="lab-title">Change the purchase.<br /><em>Watch the wallet change its mind.</em></h2>
@@ -127,7 +126,7 @@ export default function Home() {
         <DecisionLab />
       </section>
 
-      <section className="checkout-stage" id="checkout" aria-labelledby="checkout-title">
+      <section className="checkout-stage" id="checkout" aria-labelledby="checkout-title" data-story-stop data-card-x="0.24" data-card-y="0.58" data-card-rotation="0.10" data-card-scale="0.60">
         <div className="checkout-mast" data-reveal>
           <span className="eyebrow eyebrow--ink">At checkout</span>
           <h2 id="checkout-title">The research loop should end <em>before</em> the payment starts.</h2>
@@ -136,7 +135,7 @@ export default function Home() {
         <PosDemo />
       </section>
 
-      <section className="qr-story" aria-labelledby="qr-title">
+      <section className="qr-story" id="qr" aria-labelledby="qr-title" data-story-stop data-card-x="0.76" data-card-y="0.54" data-card-rotation="-0.16" data-card-scale="0.54">
         <div className="qr-story__copy" data-reveal>
           <span className="eyebrow eyebrow--ink">QR advisory</span>
           <h2 id="qr-title">Scan the moment.<br />Not another dashboard.</h2>
@@ -152,7 +151,7 @@ export default function Home() {
         <div className="qr-story__halo" aria-hidden="true" />
       </section>
 
-      <section className="trust-stage" id="trust" aria-labelledby="trust-title">
+      <section className="trust-stage" id="trust" aria-labelledby="trust-title" data-story-stop data-card-x="0.25" data-card-y="0.58" data-card-rotation="0.13" data-card-scale="0.55">
         <div className="section-mast section-mast--trust" data-reveal>
           <span className="eyebrow eyebrow--ink">Trust the rupee</span>
           <h2 id="trust-title">A financial answer should come with its evidence.</h2>
@@ -189,7 +188,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="cta-stage" id="cta">
+      <section className="cta-stage" id="cta" data-story-stop data-card-x="0.50" data-card-y="0.62" data-card-rotation="0" data-card-scale="0.68">
         <div className="cta-stack" aria-hidden="true"><i /><i /><i /><i /></div>
         <div className="cta-copy" data-reveal><span className="eyebrow eyebrow--ink">The next payment</span><h2>Your wallet already has the answer.<br /><em>Cardeify finds it.</em></h2><p>Try the interactive preview and see how one purchase can change which card deserves the tap.</p><a className="cta-button" href="#lab">Try Cardeify <span>↗</span></a></div>
       </section>

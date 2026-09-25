@@ -4,6 +4,7 @@ import "./globals.css";
 import "./cardeify-theme.css";
 import "./editorial-v4.css";
 import "./cinematic-v1.css";
+import "./cinematic-v2.css";
 
 const geist = Geist({
   variable: "--font-geist",

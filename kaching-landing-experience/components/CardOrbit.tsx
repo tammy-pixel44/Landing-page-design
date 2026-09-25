@@ -6,10 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 type CardLook = {
-  name: string;
-  sub: string;
-  value: string;
-  reason: string;
+  label: string;
   from: string;
   to: string;
   ink: string;
@@ -19,14 +16,11 @@ type CardLook = {
 };
 
 const cardLooks: CardLook[] = [
-  { name: "Everyday Plus", sub: "CASHBACK", value: "₹62", reason: "Dining multiplier wins", from: "#173B64", to: "#0B2139", ink: "#F6F4ED", edge: "#071727", metalness: .16, roughness: .28 },
-  { name: "Travel Metal", sub: "TRAVEL", value: "₹48", reason: "Better on flights", from: "#EAD485", to: "#B9922E", ink: "#172333", edge: "#80671E", metalness: .58, roughness: .18 },
-  { name: "UPI Edge", sub: "UPI", value: "₹43", reason: "UPI reward rule", from: "#8DA5C2", to: "#4D6E96", ink: "#F6F4ED", edge: "#3C5877", metalness: .24, roughness: .24 },
-  { name: "Dining Core", sub: "DINING", value: "₹39", reason: "Category bonus", from: "#272727", to: "#101010", ink: "#EAD485", edge: "#090909", metalness: .42, roughness: .2 },
-  { name: "Online Max", sub: "ONLINE", value: "₹31", reason: "Online spend boost", from: "#244B77", to: "#152B47", ink: "#F6F4ED", edge: "#102036", metalness: .22, roughness: .27 },
-  { name: "Fuel Smart", sub: "FUEL", value: "₹28", reason: "Fuel surcharge value", from: "#D9E4E7", to: "#8DA5C2", ink: "#173B64", edge: "#6A839F", metalness: .12, roughness: .34 },
-  { name: "Premium Reserve", sub: "PREMIUM", value: "₹24", reason: "Premium base earn", from: "#1D1D1F", to: "#3A3322", ink: "#F4DE8D", edge: "#0D0D0E", metalness: .5, roughness: .19 },
-  { name: "Cashback Flex", sub: "CASHBACK", value: "₹19", reason: "Simple flat reward", from: "#4C6788", to: "#1E3A5B", ink: "#F6F4ED", edge: "#17304C", metalness: .2, roughness: .29 },
+  { label: "EVERYDAY", from: "#315A87", to: "#173B64", ink: "#F6F4ED", edge: "#0D233A", metalness: .16, roughness: .3 },
+  { label: "DINING", from: "#284C75", to: "#142C49", ink: "#F6F4ED", edge: "#0D2036", metalness: .2, roughness: .27 },
+  { label: "TRAVEL", from: "#223D5D", to: "#11253C", ink: "#F6F4ED", edge: "#081827", metalness: .28, roughness: .24 },
+  { label: "ONLINE", from: "#F4DE8D", to: "#D4B33B", ink: "#172333", edge: "#8B7224", metalness: .38, roughness: .22 },
+  { label: "FLEX", from: "#C6D4E5", to: "#8299B6", ink: "#173B64", edge: "#617895", metalness: .14, roughness: .32 },
 ];
 
 function makeCardTexture(look: CardLook) {
@@ -42,65 +36,64 @@ function makeCardTexture(look: CardLook) {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 1024, 640);
 
+  const glow = ctx.createRadialGradient(800, 20, 0, 800, 20, 520);
+  glow.addColorStop(0, "rgba(255,255,255,.28)");
+  glow.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, 1024, 640);
+
   ctx.save();
-  ctx.globalAlpha = .09;
+  ctx.globalAlpha = .055;
   ctx.strokeStyle = look.ink;
   ctx.lineWidth = 1;
-  for (let x = -420; x < 1300; x += 34) {
+  for (let x = -500; x < 1500; x += 48) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
-    ctx.lineTo(x + 500, 640);
+    ctx.lineTo(x + 430, 640);
     ctx.stroke();
   }
   ctx.restore();
 
-  const bloom = ctx.createRadialGradient(810, 70, 0, 810, 70, 470);
-  bloom.addColorStop(0, "rgba(255,255,255,.18)");
-  bloom.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = bloom;
-  ctx.fillRect(0, 0, 1024, 640);
-
   ctx.fillStyle = look.ink;
-  ctx.globalAlpha = .92;
-  ctx.font = "700 38px Arial, sans-serif";
-  ctx.fillText("CARDEIFY", 58, 72);
+  ctx.globalAlpha = .9;
+  ctx.font = "700 30px Arial, sans-serif";
+  ctx.fillText("CARDEIFY", 62, 72);
 
-  ctx.globalAlpha = .56;
-  ctx.font = "600 17px Arial, sans-serif";
-  ctx.fillText("SMART WALLET PROFILE", 60, 101);
+  ctx.globalAlpha = .5;
+  ctx.font = "600 16px Arial, sans-serif";
+  ctx.fillText("SMART WALLET", 64, 102);
 
-  ctx.globalAlpha = 1;
-  ctx.font = "700 50px Arial, sans-serif";
-  ctx.fillText(look.name.toUpperCase(), 58, 454);
-  ctx.globalAlpha = .64;
-  ctx.font = "700 19px Arial, sans-serif";
-  ctx.fillText(look.sub, 60, 489);
+  ctx.globalAlpha = .94;
+  ctx.font = "700 54px Arial, sans-serif";
+  ctx.fillText(look.label, 62, 475);
 
-  ctx.globalAlpha = .55;
-  ctx.font = "500 19px Arial, sans-serif";
-  ctx.fillText("•••• 2841", 60, 575);
-  ctx.textAlign = "right";
-  ctx.fillText("ILLUSTRATIVE PROFILE", 962, 575);
-  ctx.textAlign = "left";
+  ctx.globalAlpha = .46;
+  ctx.font = "500 20px Arial, sans-serif";
+  ctx.fillText("•••• 4821", 62, 570);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = 8;
-  texture.needsUpdate = true;
   return texture;
 }
 
-function Chip() {
+function Chip({ ink = "#8B7224" }: { ink?: string }) {
   return (
-    <group position={[-1.05, .28, .092]}>
-      <RoundedBox args={[.58, .43, .046]} radius={.055} smoothness={5}>
-        <meshStandardMaterial color="#D8C17A" metalness={.84} roughness={.17} />
+    <group position={[-1.03, .17, .094]}>
+      <RoundedBox args={[.58, .43, .038]} radius={.055} smoothness={5}>
+        <meshStandardMaterial color="#D9C47E" metalness={.8} roughness={.2} />
       </RoundedBox>
       {[-.17, 0, .17].map((x) => (
-        <mesh key={x} position={[x, 0, .026]}><boxGeometry args={[.014, .32, .008]} /><meshStandardMaterial color="#886F2C" metalness={.72} roughness={.25} /></mesh>
+        <mesh key={x} position={[x, 0, .024]}>
+          <boxGeometry args={[.012, .31, .008]} />
+          <meshStandardMaterial color={ink} metalness={.62} roughness={.32} />
+        </mesh>
       ))}
       {[-.1, .1].map((y) => (
-        <mesh key={y} position={[0, y, .027]}><boxGeometry args={[.46, .014, .008]} /><meshStandardMaterial color="#886F2C" metalness={.72} roughness={.25} /></mesh>
+        <mesh key={y} position={[0, y, .025]}>
+          <boxGeometry args={[.45, .012, .008]} />
+          <meshStandardMaterial color={ink} metalness={.62} roughness={.32} />
+        </mesh>
       ))}
     </group>
   );
@@ -108,9 +101,12 @@ function Chip() {
 
 function Contactless({ color }: { color: string }) {
   return (
-    <group position={[1.12, .65, .097]} rotation={[0, 0, -.08]}>
+    <group position={[1.15, .66, .098]} rotation={[0, 0, -.06]}>
       {[.09, .15, .21].map((radius) => (
-        <mesh key={radius} rotation={[0, 0, Math.PI / 2]}><torusGeometry args={[radius, .011, 6, 24, Math.PI]} /><meshStandardMaterial color={color} transparent opacity={.76} /></mesh>
+        <mesh key={radius} rotation={[0, 0, Math.PI / 2]}>
+          <torusGeometry args={[radius, .009, 6, 24, Math.PI]} />
+          <meshStandardMaterial color={color} transparent opacity={.65} />
+        </mesh>
       ))}
     </group>
   );
@@ -127,66 +123,86 @@ function PhysicalCard({ look }: { look: CardLook }) {
 
   return (
     <group>
-      <RoundedBox args={[3.36, 2.12, .15]} radius={.14} smoothness={8}>
-        <meshStandardMaterial color={look.from} map={texture ?? undefined} metalness={look.metalness} roughness={look.roughness} />
+      <RoundedBox args={[3.36, 2.12, .15]} radius={.15} smoothness={8}>
+        <meshPhysicalMaterial
+          color={look.from}
+          map={texture ?? undefined}
+          metalness={look.metalness}
+          roughness={look.roughness}
+          clearcoat={.34}
+          clearcoatRoughness={.26}
+        />
       </RoundedBox>
-      <mesh position={[0, 0, -.082]}><boxGeometry args={[2.96, .27, .018]} /><meshStandardMaterial color={look.edge} roughness={.5} /></mesh>
-      <Chip />
+      <mesh position={[0, 0, -.083]}>
+        <boxGeometry args={[2.98, .24, .018]} />
+        <meshStandardMaterial color={look.edge} roughness={.48} />
+      </mesh>
+      <Chip ink={look.edge} />
       <Contactless color={look.ink} />
     </group>
   );
 }
 
-function CarouselScene({ reducedMotion, onActiveChange }: { reducedMotion: boolean; onActiveChange: (index: number) => void }) {
+const FAN_ANGLES = [-.72, -.37, 0, .37, .72];
+
+function easeOutBack(value: number) {
+  const c1 = 1.2;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(value - 1, 3) + c1 * Math.pow(value - 1, 2);
+}
+
+function FanScene({ started, reducedMotion }: { started: boolean; reducedMotion: boolean }) {
   const rig = useRef<THREE.Group>(null);
-  const cardRefs = useRef<(THREE.Group | null)[]>([]);
-  const activeRef = useRef(0);
-  const phaseRef = useRef(0);
+  const cards = useRef<(THREE.Group | null)[]>([]);
+  const progress = useRef(reducedMotion ? 1 : 0);
 
   useFrame((state, delta) => {
-    phaseRef.current += reducedMotion ? 0 : delta * .19;
-    const phase = phaseRef.current;
+    if (started && progress.current < 1) {
+      progress.current = Math.min(1, progress.current + delta * .88);
+    }
+
+    const raw = reducedMotion ? 1 : progress.current;
+    const fan = raw <= 0 ? 0 : easeOutBack(raw);
+    const settle = THREE.MathUtils.smoothstep(raw, .55, 1);
 
     if (rig.current) {
-      const px = reducedMotion ? 0 : state.pointer.x * .055;
-      const py = reducedMotion ? 0 : state.pointer.y * .025;
-      rig.current.rotation.y = THREE.MathUtils.damp(rig.current.rotation.y, px, 3.4, delta);
-      rig.current.rotation.x = THREE.MathUtils.damp(rig.current.rotation.x, -.045 - py, 3.4, delta);
+      const px = reducedMotion ? 0 : state.pointer.x * .045;
+      const py = reducedMotion ? 0 : state.pointer.y * .022;
+      rig.current.rotation.y = THREE.MathUtils.damp(rig.current.rotation.y, px, 4, delta);
+      rig.current.rotation.x = THREE.MathUtils.damp(rig.current.rotation.x, -.035 - py, 4, delta);
     }
 
-    let closest = 0;
-    let closestDepth = -Infinity;
-
-    cardRefs.current.forEach((card, index) => {
+    cards.current.forEach((card, index) => {
       if (!card) return;
-      const angle = (index / cardLooks.length) * Math.PI * 2 + phase;
-      const depth = Math.cos(angle);
-      const x = Math.sin(angle) * 5.05;
-      const y = -.35 + Math.cos(angle) * .36;
-      const z = depth * 2.18;
-      const side = Math.sin(angle);
 
-      card.position.set(x, y, z);
-      card.rotation.set(-.035 + Math.abs(side) * .025, -side * .2, -side * .18);
-      const scale = THREE.MathUtils.mapLinear(depth, -1, 1, .63, 1.05);
-      card.scale.setScalar(scale);
+      const angle = FAN_ANGLES[index] * fan;
+      const distance = 3.55;
+      const x = Math.sin(angle) * distance;
+      const y = -.75 - Math.abs(angle) * .54 + (1 - settle) * .28;
+      const centerWeight = 1 - Math.abs(index - 2) / 2;
+      const z = centerWeight * .16 + index * .015;
+      const scale = .86 + settle * .09;
 
-      if (depth > closestDepth) {
-        closestDepth = depth;
-        closest = index;
-      }
+      card.position.x = THREE.MathUtils.damp(card.position.x, x, 8, delta);
+      card.position.y = THREE.MathUtils.damp(card.position.y, y, 8, delta);
+      card.position.z = THREE.MathUtils.damp(card.position.z, z, 8, delta);
+      card.rotation.z = THREE.MathUtils.damp(card.rotation.z, angle * .88, 8, delta);
+      card.rotation.y = THREE.MathUtils.damp(card.rotation.y, -angle * .08, 8, delta);
+      card.scale.setScalar(THREE.MathUtils.damp(card.scale.x, scale, 8, delta));
     });
-
-    if (closest !== activeRef.current) {
-      activeRef.current = closest;
-      onActiveChange(closest);
-    }
   });
 
   return (
-    <group ref={rig} position={[0, -.1, 0]}>
+    <group ref={rig} position={[0, -.08, 0]}>
       {cardLooks.map((look, index) => (
-        <group key={look.name} ref={(element) => { cardRefs.current[index] = element; }}><PhysicalCard look={look} /></group>
+        <group
+          key={look.label}
+          ref={(node) => { cards.current[index] = node; }}
+          position={[0, -.47, -index * .02]}
+          scale={.84}
+        >
+          <PhysicalCard look={look} />
+        </group>
       ))}
     </group>
   );
@@ -194,8 +210,9 @@ function CarouselScene({ reducedMotion, onActiveChange }: { reducedMotion: boole
 
 export default function CardOrbit() {
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const active = cardLooks[activeIndex] ?? cardLooks[0];
+  const [started, setStarted] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const stageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -205,23 +222,47 @@ export default function CardOrbit() {
     return () => media.removeEventListener("change", sync);
   }, []);
 
-  return (
-    <div className="orbit-stage">
-      <div className="orbit-canvas" aria-hidden="true">
-        <Canvas camera={{ position: [0, .1, 10.4], fov: 34 }} dpr={[1, 1.45]} frameloop={reducedMotion ? "demand" : "always"} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
-          <fog attach="fog" args={["#171717", 11, 18]} />
-          <ambientLight intensity={1.05} />
-          <directionalLight position={[2.4, 5.2, 6.5]} intensity={4.2} color="#FFF5D1" />
-          <pointLight position={[-5.2, -.7, 4.2]} intensity={2.9} color="#D4B33B" />
-          <pointLight position={[5.4, 1.1, 2.6]} intensity={3.2} color="#7290B5" />
-          <CarouselScene reducedMotion={reducedMotion} onActiveChange={setActiveIndex} />
-        </Canvas>
-      </div>
+  useEffect(() => {
+    const start = () => setStarted(true);
+    window.addEventListener("cardeify:ready", start);
 
-      <div className="orbit-readout" aria-live="polite">
-        <span>BEST ILLUSTRATIVE CARD</span>
-        <div><strong>{active.name}</strong><b>{active.value}</b></div>
-        <p>{active.reason}</p>
+    if (!document.body.dataset.cardeifyLoading) {
+      const timer = window.setTimeout(start, 80);
+      return () => {
+        window.clearTimeout(timer);
+        window.removeEventListener("cardeify:ready", start);
+      };
+    }
+
+    return () => window.removeEventListener("cardeify:ready", start);
+  }, []);
+
+  useEffect(() => {
+    const node = stageRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), {
+      rootMargin: "18% 0px 18% 0px",
+      threshold: .02,
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="orbit-stage" ref={stageRef}>
+      <div className="orbit-canvas" aria-hidden="true">
+        <Canvas
+          camera={{ position: [0, .05, 10.5], fov: 33 }}
+          dpr={[1, 1.4]}
+          frameloop={reducedMotion || !visible ? "demand" : "always"}
+          gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+        >
+          <ambientLight intensity={1.0} />
+          <directionalLight position={[2.8, 5.4, 6.8]} intensity={4.5} color="#FFF4CC" />
+          <pointLight position={[-5, -.8, 4]} intensity={2.4} color="#5078A6" />
+          <pointLight position={[5, 1.6, 3]} intensity={2.4} color="#E4C65F" />
+          <FanScene started={started} reducedMotion={reducedMotion} />
+        </Canvas>
       </div>
     </div>
   );

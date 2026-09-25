@@ -2,7 +2,7 @@ name: Landing check
 
 on:
   push:
-    branches: [main]
+    branches: [main, cardeify-cinematic-3d-story-v1]
     paths:
       - "kaching-landing-experience/**"
       - ".github/workflows/landing-check.yml"

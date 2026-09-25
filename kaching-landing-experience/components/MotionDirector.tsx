@@ -11,105 +11,170 @@ export default function MotionDirector() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const mm = gsap.matchMedia();
 
-    gsap.set(".page-progress__bar", { transformOrigin: "left center" });
+    gsap.set(".page-progress__bar", { transformOrigin: "left center", scaleX: 0 });
     const progress = ScrollTrigger.create({
       start: 0,
       end: "max",
       onUpdate: (self) => gsap.set(".page-progress__bar", { scaleX: self.progress }),
     });
 
-    document.fonts?.ready.then(() => ScrollTrigger.refresh()).catch(() => undefined);
+    const revealTargets = gsap.utils.toArray<HTMLElement>("[data-reveal]");
 
     if (reduced) {
-      gsap.set("[data-reveal], .hero-kicker, .hero-word, .hero-sub, .hero-purchase, .orbit-readout", { clearProps: "all", opacity: 1, y: 0 });
+      gsap.set(
+        [
+          ".nav-shell",
+          ".hero-kicker",
+          ".hero-word",
+          ".hero-sub",
+          ".hero-actions",
+          ".hero-example",
+          ".orbit-stage",
+          ...revealTargets,
+          "[data-rule-gate]",
+          "[data-offer-layer]",
+        ],
+        { clearProps: "all", opacity: 1, y: 0, x: 0 }
+      );
       return () => progress.kill();
     }
 
-    const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
-    intro
-      .from(".nav-shell", { yPercent: -110, duration: .7 })
-      .from(".hero-kicker", { opacity: 0, y: 12, duration: .4 }, "-=.15")
-      .from(".hero-word", { yPercent: 112, opacity: 0, duration: .88, stagger: .08 }, "-=.18")
-      .from(".hero-sub", { opacity: 0, y: 16, duration: .5 }, "-=.34")
-      .from(".hero-purchase", { opacity: 0, y: 12, scale: .97, duration: .45 }, "-=.28")
-      .from(".orbit-stage", { opacity: 0, y: 40, duration: .95 }, "-=.38")
-      .from(".orbit-readout", { opacity: 0, y: 12, duration: .5 }, "-=.36");
+    const runIntro = () => {
+      const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
+      intro
+        .fromTo(".nav-shell", { yPercent: -105 }, { yPercent: 0, duration: .62 })
+        .from(".hero-kicker", { opacity: 0, y: 10, duration: .36 }, "-=.10")
+        .from(".hero-word", { yPercent: 108, opacity: 0, duration: .82, stagger: .08 }, "-=.12")
+        .from(".hero-sub", { opacity: 0, y: 14, duration: .48 }, "-=.34")
+        .from(".hero-actions", { opacity: 0, y: 12, duration: .46 }, "-=.28")
+        .from(".hero-example", { opacity: 0, duration: .44 }, "-=.16");
+    };
+
+    if (document.body.dataset.cardeifyLoading === "true") {
+      window.addEventListener("cardeify:ready", runIntro, { once: true });
+    } else {
+      runIntro();
+    }
 
     gsap.timeline({
-      scrollTrigger: { trigger: ".hero-shell", start: "top top", end: "bottom top", scrub: .8 },
+      scrollTrigger: {
+        trigger: ".hero-shell",
+        start: "top top",
+        end: "bottom top",
+        scrub: .85,
+      },
     })
-      .to(".hero-copy", { y: -72, opacity: .18, duration: .5, ease: "power1.inOut" }, .18)
-      .to(".hero-world__contour--one", { scale: 1.12, opacity: .35, duration: .7, ease: "none" }, 0)
-      .to(".hero-world__contour--two", { scale: 1.2, opacity: .2, duration: .7, ease: "none" }, 0)
-      .to(".hero-world__contour--three", { scale: 1.3, opacity: .08, duration: .7, ease: "none" }, 0)
-      .to(".orbit-stage", { y: 56, scale: .95, duration: .55, ease: "power1.inOut" }, .24);
+      .to(".hero-copy", { y: -82, opacity: .08, ease: "none" }, 0)
+      .to(".hero-example", { opacity: 0, y: -18, ease: "none" }, .08)
+      .to(".orbit-stage", { y: 82, scale: .94, opacity: .28, ease: "none" }, .18);
 
-    gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element) => {
+    revealTargets.forEach((element) => {
       gsap.from(element, {
         opacity: 0,
-        y: 34,
-        duration: .85,
+        y: 30,
+        duration: .8,
         ease: "power3.out",
-        scrollTrigger: { trigger: element, start: "top 86%", once: true },
+        scrollTrigger: { trigger: element, start: "top 84%", once: true },
       });
+    });
+
+    gsap.from(".choice-ledger span", {
+      opacity: 0,
+      y: 18,
+      duration: .55,
+      stagger: .08,
+      ease: "power2.out",
+      scrollTrigger: { trigger: ".choice-ledger", start: "top 90%", once: true },
     });
 
     mm.add("(min-width: 900px)", () => {
-      gsap.from(".wallet-bridge__threads", {
-        y: -100,
+      gsap.from(".context-object", {
         opacity: 0,
-        scale: .9,
-        duration: 1.1,
+        y: 44,
+        duration: .72,
+        stagger: .06,
         ease: "power3.out",
-        scrollTrigger: { trigger: ".wallet-bridge", start: "top 78%", once: true },
+        scrollTrigger: { trigger: ".context-shelf", start: "top 86%", once: true },
       });
 
-      gsap.from(".wallet-ribbon__card", {
-        y: 120,
-        opacity: 0,
-        scale: .84,
-        duration: .85,
-        stagger: { each: .06, from: "center" },
+      const reward = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".reward-stage",
+          start: "top 68%",
+          end: "bottom 62%",
+          scrub: .8,
+        },
+      });
+      reward
+        .from(".reward-head h2", { opacity: .28, scale: .94, transformOrigin: "left center" }, 0)
+        .from("[data-rule-gate]", { opacity: 0, y: 28, stagger: .16 }, .12)
+        .from(".reward-answer", { opacity: 0, x: 24 }, .58);
+
+      const offers = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".offers-stage",
+          start: "top 66%",
+          end: "bottom 62%",
+          scrub: .75,
+        },
+      });
+      offers
+        .from("[data-offer-layer]", { opacity: 0, x: 34, stagger: .13 }, 0)
+        .from(".offer-total", { opacity: 0, y: 20 }, .55);
+
+      gsap.from(".timeline-bar i", {
+        height: 0,
+        duration: 1.05,
+        stagger: .08,
         ease: "power3.out",
-        scrollTrigger: { trigger: ".wallet-ribbon", start: "top 94%", once: true },
+        scrollTrigger: { trigger: ".value-timeline", start: "top 84%", once: true },
       });
-
-      const problem = gsap.timeline({
-        scrollTrigger: { trigger: ".problem-stage", start: "top 72%", end: "bottom 72%", scrub: .75 },
-      });
-      problem
-        .from(".problem-equation__rate", { opacity: .2, scale: .9, duration: .5 })
-        .from(".problem-rule", { opacity: 0, x: 55, stagger: .18, duration: .7 }, .12)
-        .from(".problem-equation__answer", { opacity: 0, scale: .88, rotate: 2, duration: .7 }, .62);
     });
 
-    gsap.from(".qr-phone", {
-      y: 70,
-      rotate: 10,
+    gsap.from(".verification-paper:first-child", {
       opacity: 0,
-      duration: 1.05,
+      y: 54,
+      rotate: -8,
+      duration: .9,
       ease: "power3.out",
-      scrollTrigger: { trigger: ".qr-story", start: "top 72%", once: true },
+      scrollTrigger: { trigger: ".verification-papers", start: "top 82%", once: true },
     });
-
-    gsap.from(".evidence-receipt", {
-      y: 55,
-      rotate: -1.5,
+    gsap.from(".verification-paper--alert", {
       opacity: 0,
-      duration: .95,
+      y: 64,
+      rotate: 7,
+      duration: .9,
+      delay: .12,
       ease: "power3.out",
-      scrollTrigger: { trigger: ".evidence-receipt", start: "top 82%", once: true },
+      scrollTrigger: { trigger: ".verification-papers", start: "top 82%", once: true },
     });
 
-    gsap.to(".cta-stack", {
-      rotate: 10,
-      scale: 1.06,
+    gsap.from(".evidence-sheet > div", {
+      opacity: 0,
+      x: 18,
+      duration: .5,
+      stagger: .06,
+      ease: "power2.out",
+      scrollTrigger: { trigger: ".evidence-sheet", start: "top 82%", once: true },
+    });
+
+    gsap.to(".final-stack", {
+      scale: .94,
+      opacity: .26,
       ease: "none",
-      scrollTrigger: { trigger: ".cta-stage", start: "top bottom", end: "bottom top", scrub: 1 },
+      scrollTrigger: {
+        trigger: ".final-stage",
+        start: "top bottom",
+        end: "bottom bottom",
+        scrub: .8,
+      },
     });
+
+    document.fonts?.ready.then(() => ScrollTrigger.refresh()).catch(() => undefined);
 
     return () => {
       progress.kill();
+      window.removeEventListener("cardeify:ready", runIntro);
       mm.revert();
     };
   });

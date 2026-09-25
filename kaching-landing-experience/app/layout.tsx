@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import "./cardeify-theme.css";
 import "./editorial-v4.css";
+import "./cinematic-v1.css";
 
 const geist = Geist({
   variable: "--font-geist",
